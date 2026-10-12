@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123b32">
+  <title>Rintal | Rental Manager</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6f5;
+      color: #20312c;
+    }
+    header {
+      background: #123b32;
+      color: white;
+      padding: 22px 18px;
+    }
+    header h1 { margin: 0; font-size: 28px; }
+    header p { margin-bottom: 0; color: #d4e7de; }
+    main { max-width: 1050px; margin: auto; padding: 18px; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 17px;
+      box-shadow: 0 2px 8px #0000000a;
+      margin-bottom: 14px;
+    }
+    .stat-title { color: #66756f; font-size: 14px; }
+    .stat-value { font-size: 23px; font-weight: bold; margin-top: 8px; }
+    h2 { font-size: 19px; margin-top: 0; }
+    .rooms {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    button, input, textarea, select { font: inherit; }
+    button {
+      border: 0;
+      border-radius: 9px;
+      padding: 12px 15px;
+      cursor: pointer;
+    }
+    .room {
+      background: #f1f5f3;
+      border: 1px solid #dce5e0;
+      text-align: left;
+      color: #20312c;
+    }
+    .room.active { background: #d9eee4; border: 2px solid #237956; }
+    .room strong, .room span { display: block; }
+    .room span { margin-top: 7px; font-size: 13px; color: #66756f; }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    label { display: block; font-size: 13px; margin-bottom: 6px; color: #66756f; }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d4ded9;
+      border-radius: 9px;
+      background: white;
+      color: #20312c;
+    }
+    .primary { background: #176448; color: white; }
+    .secondary { background: #e7eeea; color: #20312c; }
+    .actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 15px; }
+    .notice { font-size: 13px; line-height: 1.6; color: #66756f; }
+    .records { padding: 0; list-style: none; }
+    .records li { padding: 12px 0; border-bottom: 1px solid #e4eae6; }
+    .warning { background: #fff6dc; padding: 12px; border-radius: 9px; font-size: 13px; }
+    @media(min-width:650px) {
+      .stats { grid-template-columns: repeat(4, 1fr); }
+      .rooms { grid-template-columns: repeat(3, 1fr); }
+      .form-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>🏠 Rintal</h1>
+  <p>आपकी बिल्डिंग · आपका रेंट मैनेजर</p>
+</header>
+
+<main>
+  <div class="stats">
+    <div class="card">
+      <div class="stat-title">मासिक किराया</div>
+      <div class="stat-value" id="totalRent">₹0</div>
+    </div>
+    <div class="card">
+      <div class="stat-title">इस महीने प्राप्त</div>
+      <div class="stat-value" id="totalPaid">₹0</div>
+    </div>
+    <div class="card">
+      <div class="stat-title">कुल बकाया</div>
+      <div class="stat-value" id="totalDue">₹0</div>
+    </div>
+    <div class="card">
+      <div class="stat-title">किराए पर दिए फ्लैट</div>
+      <div class="stat-value" id="occupied">0 / 6</div>
+    </div>
+  </div>
+
+  <section class="card">
+    <h2>कमरे / फ्लैट</h2>
+    <div class="rooms" id="rooms"></div>
+  </section>
+
+  <section class="card">
+    <h2 id="formTitle">फ्लैट 1 की जानकारी</h2>
+    <p class="notice">किरायेदार की जानकारी भरें। यह प्रारंभिक डेमो है; अभी जानकारी ऑनलाइन सुरक्षित नहीं होती।</p>
+    <form id="tenantForm">
+      <div class="form-grid">
+        <div>
+          <label for="name">किरायेदार का पूरा नाम</label>
+          <input id="name" required placeholder="पूरा नाम">
+        </div>
+        <div>
+          <label for="phone">मोबाइल नंबर</label>
+          <input id="phone" type="tel" placeholder="मोबाइल नंबर">
+        </div>
+        <div>
+          <label for="address">स्थायी पता</label>
+          <textarea id="address" rows="2" placeholder="गाँव, शहर, जिला"></textarea>
+        </div>
+        <div>
+          <label for="rent">मासिक किराया (₹)</label>
+          <input id="rent" type="number" min="0" required placeholder="3000">
+        </div>
+        <div>
+          <label for="previous">पिछली बिजली मीटर रीडिंग</label>
+          <input id="previous" type="number" min="0" placeholder="1000">
+        </div>
+        <div>
+          <label for="current">वर्तमान बिजली मीटर रीडिंग</label>
+          <input id="current" type="number" min="0" placeholder="1050">
+        </div>
+        <div>
+          <label for="rate">प्रति यूनिट बिजली दर (₹)</label>
+          <input id="rate" type="number" min="0" step="0.01" value="8">
+        </div>
+        <div>
+          <label for="paid">इस महीने जमा रकम (₹)</label>
+          <input id="paid" type="number" min="0" value="0">
+        </div>
+      </div>
+      <div class="actions">
+        <button class="primary" type="submit">डेमो में सेव करें</button>
+        <button class="secondary" type="button" id="clear">फॉर्म साफ करें</button>
+      </div>
+      <p id="message" class="notice" role="status"></p>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>मासिक हिसाब</h2>
+    <ul class="records" id="records"></ul>
+    <p class="warning">⚠️ यह शुरुआती डिज़ाइन है। अभी लॉगिन, Firebase डेटाबेस और वास्तविक सुरक्षित ऑनलाइन सेविंग जोड़ी नहीं गई है। किरायेदारों की असली निजी जानकारी इसमें न भरें।</p>
+  </section>
+</main>
+
+<script>
+(() => {
+  const tenants = Array.from({length: 6}, (_, i) => ({
+    id: i + 1, name: '', phone: '', address: '',
+    rent: 0, previous: '', current: '', rate: 8, paid: 0
+  }));
+
+  let selected = 1;
+  const $ = id => document.getElementById(id);
+  const money = n => '₹' + (Number(n) || 0).toLocaleString('en-IN');
+
+  function bill(t) {
+    const valid = t.previous !== '' && t.current !== '' &&
+      Number(t.current) >= Number(t.previous);
+    const units = valid ? Number(t.current) - Number(t.previous) : 0;
+    const electricity = units * Math.max(0, Number(t.rate) || 0);
+    const total = (Number(t.rent) || 0) + electricity;
+    return {units, electricity, total, due: Math.max(0, total - (Number(t.paid) || 0))};
+  }
+
+  function renderRooms() {
+    $('rooms').replaceChildren();
+    tenants.forEach(t => {
+      const b = document.createElement('button');
+      b.className = 'room' + (t.id === selected ? ' active' : '');
+      const title = document.createElement('strong');
+      title.textContent = 'फ्लैट ' + t.id;
+      const details = document.createElement('span');
+      details.textContent = t.name || 'खाली';
+      b.append(title, details);
+      b.addEventListener('click', () => {
+        selected = t.id;
+        loadForm();
+        render();
+      });
+      $('rooms').appendChild(b);
+    });
+  }
+
+  function loadForm() {
+    const t = tenants[selected - 1];
+    $('formTitle').textContent = 'फ्लैट ' + selected + ' की जानकारी';
+    ['name','phone','address','rent','previous','current','rate','paid'].forEach(k => {
+      $(k).value = t[k] ?? '';
+    });
+  }
+
+  function render() {
+    renderRooms();
+    let totalRent = 0, totalPaid = 0, totalDue = 0, occupied = 0;
+    $('records').replaceChildren();
+
+    tenants.forEach(t => {
+      const b = bill(t);
+      totalRent += Number(t.rent) || 0;
+      totalPaid += Number(t.paid) || 0;
+      totalDue += b.due;
+      if (t.name.trim()) occupied++;
+
+      const li = document.createElement('li');
+      const title = document.createElement('strong');
+      title.textContent = 'फ्लैट ' + t.id + ' — ' + (t.name || 'खाली');
+      const details = document.createElement('div');
+      details.className = 'notice';
+      details.textContent = 'किराया ' + money(t.rent) +
+        ' · बिजली ' + money(b.electricity) +
+        ' · यूनिट ' + b.units +
+        ' · बकाया ' + money(b.due);
+      li.append(title, details);
+      $('records').appendChild(li);
+    });
+
+    $('totalRent').textContent = money(totalRent);
+    $('totalPaid').textContent = money(totalPaid);
+    $('totalDue').textContent = money(totalDue);
+    $('occupied').textContent = occupied + ' / 6';
+  }
+
+  $('tenantForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const t = tenants[selected - 1];
+    ['name','phone','address'].forEach(k => t[k] = $(k).value.trim());
+    ['rent','previous','current','rate','paid'].forEach(k => {
+      t[k] = $(k).value === '' ? '' : Number($(k).value);
+    });
+
+    if (t.previous !== '' && t.current !== '' &&
+        Number(t.current) < Number(t.previous)) {
+      $('message').textContent = 'वर्तमान मीटर रीडिंग पिछली रीडिंग से कम नहीं हो सकती।';
+      return;
+    }
+
+    $('message').textContent = 'डेमो में जानकारी अपडेट हुई। अभी यह ऑनलाइन सेव नहीं हुई है।';
+    render();
+  });
+
+  $('clear').addEventListener('click', () => {
+    $('tenantForm').reset();
+    $('rate').value = 8;
+    $('paid').value = 0;
+    $('message').textContent = '';
+  });
+
+  render();
+  loadForm();
+})();
+</script>
+</body>
+</html>
